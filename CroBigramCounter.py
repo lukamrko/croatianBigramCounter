@@ -1,23 +1,72 @@
 from collections import defaultdict
+import string
 
-#croatianLetters=['a', 'b', 'c', 'č', 'ć', 'd', 'đ', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 'š', 't', 'u', 'v', 'z', 'ž']
 def def_value():
     return 0
+
 croatianBigrams=defaultdict(def_value)
+filename='HR_Txt-624.txt'
 
-with open('HR_Txt-624.txt', 'r', encoding='UTF-8') as f:
-    for line in f:
-        word=line.split()[0]
-        for index, char in enumerate(word):
-            if index+1==len(word):
-                break
-            bigram=(char+word[index+1]).lower()
-            croatianBigrams[bigram]+=1
+def ReadAll():
+    with open(filename, 'r', encoding='UTF-8') as f:
+        for line in f:
+            word=line.split()[0]
+            for index, char in enumerate(word):
+                if index+1==len(word):
+                    break
+                bigram=(char+word[index+1]).lower()
+                croatianBigrams[bigram]+=1
 
-sortedCroatianBigrams={key: val for key, val in sorted(croatianBigrams.items(), key=lambda ele:ele[1], reverse=True)}
+def LimitedRead():
+    alphabet=list(string.ascii_lowercase)
+    with open(filename, 'r', encoding='UTF-8') as f:
+        for line in f:
+            word=line.split()[0]
+            for index, char in enumerate(word):
+                if index+1==len(word):
+                    break
+                nextChar=word[index+1]
+                char=OptimizeDiacrtic(char)
+                nextChar=OptimizeDiacrtic(nextChar)
+                if(char in alphabet and nextChar in alphabet):
+                    bigram=char+nextChar
+                    croatianBigrams[bigram]+=1
 
-with open('croatianBigrams.txt', 'w', encoding='UTF-8') as f:
-    string=""
-    for bigram, occurances in sortedCroatianBigrams.items():
-        string+=f"{bigram} {occurances}\n"
-    f.write(string)
+def SortAndWrite(file):
+    sortedCroatianBigrams={key: val for key, val in sorted(croatianBigrams.items(), key=lambda ele:ele[1], reverse=True)}
+
+    with open(file, 'w', encoding='UTF-8') as f:
+        string=""
+        for bigram, occurances in sortedCroatianBigrams.items():
+            string+=f"{bigram} {occurances}\n"
+        f.write(string)
+
+def OptimizeDiacrtic(char):
+    if(char=='č' or char=='ć'):
+        return 'c'
+    if(char=='š'):
+        return 's'
+    if(char=='đ'):
+        return 'd'
+    if(char=='ž'):
+        return 'z'
+    return char.lower()
+
+def GenerateAll():
+    ReadAll()
+    SortAndWrite('croatianBigramsAll.txt')
+
+def GenerateLimited():
+    LimitedRead()
+    SortAndWrite('croatianBigramsLimited.txt')
+
+def Main():
+    print('1. Generate with every possible character\n2. Generate with limited character')
+    option=input()
+    if option=='1':
+        GenerateAll()
+    if option=='2':
+        GenerateLimited()
+
+if __name__=="__main__":
+    Main()
