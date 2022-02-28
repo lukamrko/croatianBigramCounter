@@ -1,5 +1,6 @@
 from collections import defaultdict
 import string
+import re
 
 def def_value():
     return 0
@@ -52,16 +53,25 @@ def OptimizeDiacrtic(char):
         return 'z'
     return char.lower()
 
+def DeleteDuplicateCharacters():
+    keysToRemove=[]
+    for key in croatianBigrams:
+        if key[0]==key[1]:
+            keysToRemove.append(key)
+    for key in keysToRemove:
+        croatianBigrams.pop(key)
+
 def GenerateAll():
     ReadAll()
     SortAndWrite('croatianBigramsAll.txt')
 
 def GenerateLimited():
     LimitedRead()
+    DeleteDuplicateCharacters()
     SortAndWrite('croatianBigramsLimited.txt')
 
 def Main():
-    print('1. Generate with every possible character\n2. Generate with limited character')
+    print('1 - Generate with every possible character\n2 - Generate with limited character')
     option=input()
     if option=='1':
         GenerateAll()
